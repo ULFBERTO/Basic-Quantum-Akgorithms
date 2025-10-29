@@ -1,0 +1,106 @@
+<div class="flex h-screen w-full bg-background-dark">
+  <!-- SideNavBar -->
+  <aside class="flex w-64 flex-col bg-background-dark/50 p-4 border-r border-white/10">
+    <div class="flex flex-col px-3 py-2">
+      <h1 class="text-white text-base font-medium">Puertas Cuánticas</h1>
+      <p class="text-white/60 text-sm">Guía Interactiva</p>
+    </div>
+    <div class="flex flex-col gap-2 mt-4">
+      <div *ngFor="let gate of gates; let i = index"
+         (click)="selectGate(gate)"
+         [ngClass]="{'bg-primary bg-opacity-20': selectedGate?.id === gate.id, 'text-primary': selectedGate?.id === gate.id}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-colors cursor-pointer">
+        <span class="material-symbols-outlined" [style.color]="gate.color">{{ getGateIcon(i) }}</span>
+        <p class="text-sm font-medium">{{ gate.name }}</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="mx-auto max-w-4xl" *ngIf="selectedGate">
+      <!-- PageHeading -->
+      <div class="flex flex-wrap justify-between gap-3 p-4">
+        <div class="flex min-w-72 flex-col gap-3">
+          <p class="text-white text-4xl font-black">{{ selectedGate.name }}</p>
+          <p class="text-white/60 text-base">{{ selectedGate.description }}</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="pb-3 px-4">
+        <div class="flex border-b border-white/20 gap-8">
+          <button *ngFor="let tab of tabs"
+             (click)="activeTab = tab"
+             [class.border-b-primary]="activeTab === tab"
+             [class.text-white]="activeTab === tab"
+             [ngClass]="{'text-white': activeTab === tab, 'text-slate-400': activeTab !== tab}"
+             class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent hover:text-white pb-[13px] pt-4 transition-colors cursor-pointer">
+            <p class="text-sm font-bold">{{ tab }}</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Visualizer Content -->
+      <div class="p-4 flex flex-col gap-6">
+        <!-- MediaPlayer (Visualizer) -->
+        <div class="relative flex items-center justify-center bg-black/30 aspect-video rounded-xl p-4 border border-white/10">
+          <app-bloch-sphere [autoRotate]="false" [showControls]="true"></app-bloch-sphere>
+        </div>
+
+        <!-- ToolBar -->
+        <div class="flex justify-between items-center gap-4 px-4 py-2 bg-black/20 border border-white/10 rounded-lg">
+          <div class="flex gap-2">
+            <button (click)="playAnimation()" class="p-2 text-white rounded-md hover:bg-primary/30 transition-colors">
+              <span class="material-symbols-outlined">play_arrow</span>
+            </button>
+            <button class="p-2 text-white rounded-md hover:bg-primary/30 transition-colors">
+              <span class="material-symbols-outlined">pause</span>
+            </button>
+            <button (click)="resetAnimation()" class="p-2 text-white rounded-md hover:bg-primary/30 transition-colors">
+              <span class="material-symbols-outlined">replay</span>
+            </button>
+          </div>
+          <div class="flex gap-4 items-center">
+            <span class="text-sm font-medium text-white/70">Vista:</span>
+            <div class="flex gap-1 p-1 bg-black/30 rounded-md">
+              <button class="px-3 py-1 text-sm text-white bg-primary rounded">3D</button>
+              <button class="px-3 py-1 text-sm text-white/70 hover:bg-white/10 rounded">2D</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Cards and Code Snippets -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Info Card -->
+          <div class="bg-black/20 border border-white/10 rounded-lg p-4 flex flex-col gap-3">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">info</span>
+              Efectos Clave
+            </h3>
+            <p class="text-sm text-white/70">{{ selectedGate.description }}</p>
+            <div *ngIf="selectedGate.matrix" class="text-sm text-white/70">
+              <p class="font-bold mb-2">Matriz:</p>
+              <div class="font-mono bg-black/30 p-2 rounded">
+                <div *ngFor="let row of selectedGate.matrix">
+                  [ {{ row.join(', ') }} ]
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code Snippet -->
+          <div class="bg-black/20 border border-white/10 rounded-lg p-4 flex flex-col gap-3">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">code</span>
+              Ejemplo Qiskit
+            </h3>
+            <div class="bg-black/40 rounded p-3 text-sm font-mono overflow-x-auto">
+              <pre class="text-white/90"><code>{{ getQiskitExample() }}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

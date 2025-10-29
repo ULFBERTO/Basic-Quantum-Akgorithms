@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-background-dark text-gray-200">
+  <!-- TopNavBar -->
+  <header class="flex items-center justify-between px-4 sm:px-10 py-4 border-b border-white-10 sticky top-0 bg-background-dark/80 backdrop-blur-sm z-10">
+    <div class="flex items-center gap-4 text-white">
+      <div class="w-6 h-6 text-primary">
+        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
+        </svg>
+      </div>
+      <h2 class="text-white text-xl font-bold">QuantumLeap</h2>
+    </div>
+    <div class="hidden md:flex flex-1 justify-end gap-8">
+      <div class="flex items-center gap-9">
+        <a class="text-white text-sm font-medium hover:text-primary transition-colors cursor-pointer" (click)="navigateToGates()">Puertas Cuánticas</a>
+        <a class="text-white text-sm font-medium hover:text-primary transition-colors cursor-pointer" (click)="navigateToExplorer()">Algoritmos</a>
+      </div>
+      <button (click)="navigateToDesigner()" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-background-dark text-sm font-bold hover:opacity-80 transition-colors">
+        <span class="truncate">Diseñador</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex flex-col gap-16 md:gap-24 py-16 md:py-24 px-4 md:px-10 lg:px-20 xl:px-40">
+    <!-- HeroSection -->
+    <section class="flex flex-col gap-8 text-center items-center">
+      <div class="flex flex-col gap-4">
+        <h1 class="text-white text-4xl font-black md:text-6xl">Desbloquea el Poder de la Computación Cuántica</h1>
+        <h2 class="text-white-80 text-base md:text-lg max-w-2xl mx-auto">Aprende, experimenta y construye el futuro con nuestro simulador cuántico interactivo.</h2>
+      </div>
+      <button (click)="navigateToDesigner()" class="flex min-w-[84px] w-fit max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-background-dark text-base font-bold hover:opacity-80 transition-all transform hover:scale-105">
+        <span class="truncate">Comienza tu Viaje</span>
+      </button>
+      <div class="w-full max-w-3xl mt-8 aspect-video rounded-xl overflow-hidden border border-primary/30" style="background: linear-gradient(135deg, rgba(77, 150, 255, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);">
+        <app-bloch-sphere [autoRotate]="true" [showControls]="false"></app-bloch-sphere>
+      </div>
+    </section>
+
+    <!-- "What is Quantum Computing?" Section -->
+    <section>
+      <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        <div class="flex flex-col gap-2 flex-1">
+          <h2 class="text-white text-[22px] font-bold md:text-3xl">¿Qué es la Computación Cuántica?</h2>
+          <p class="text-white-80 text-base leading-relaxed">Una explicación breve y fácil de entender sobre qubits, superposición y entrelazamiento, diseñada para introducir los conceptos básicos a principiantes de manera accesible. La computación cuántica aprovecha estos principios para procesar información de formas fundamentalmente nuevas, prometiendo resolver problemas actualmente intratables incluso para las supercomputadoras más potentes.</p>
+        </div>
+        <div class="w-full md:w-1/3 aspect-square bg-white-5 rounded-lg flex items-center justify-center p-4">
+          <div class="text-center">
+            <div class="text-5xl mb-2">|ψ⟩</div>
+            <p class="text-white-60 text-sm">Estado Cuántico</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section class="flex flex-col gap-8">
+      <div>
+        <h2 class="text-white text-[22px] font-bold md:text-3xl text-center">Explora Nuestras Herramientas</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Feature Card 1 -->
+        <div (click)="navigateToGates()" class="feature-card flex flex-col gap-4 p-6 bg-white-5 border border-white-10 rounded-xl transition-all hover:border-primary/50 hover:-translate-y-1 cursor-pointer">
+          <div class="feature-icon text-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-4xl">device_hub</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <h3 class="text-white text-lg font-bold">Puertas Interactivas</h3>
+            <p class="text-white-70 text-sm">Explora los bloques fundamentales de los algoritmos cuánticos.</p>
+          </div>
+        </div>
+        <!-- Feature Card 2 -->
+        <div class="feature-card flex flex-col gap-4 p-6 bg-white-5 border border-white-10 rounded-xl transition-all hover:border-primary/50 hover:-translate-y-1 cursor-pointer">
+          <div class="feature-icon text-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-4xl">animation</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <h3 class="text-white text-lg font-bold">Animaciones en Vivo</h3>
+            <p class="text-white-70 text-sm">Visualiza fenómenos cuánticos complejos en tiempo real.</p>
+          </div>
+        </div>
+        <!-- Feature Card 3 -->
+        <div (click)="navigateToDesigner()" class="feature-card flex flex-col gap-4 p-6 bg-white-5 border border-white-10 rounded-xl transition-all hover:border-primary/50 hover:-translate-y-1 cursor-pointer">
+          <div class="feature-icon text-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-4xl">hub</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <h3 class="text-white text-lg font-bold">Diseñador de Algoritmos</h3>
+            <p class="text-white-70 text-sm">Arrastra y suelta para construir y probar tus propios circuitos cuánticos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="px-4 py-12 bg-white-5 rounded-xl text-center flex flex-col items-center gap-6">
+      <h2 class="text-white text-3xl md:text-4xl font-bold">¿Listo para Sumergirte?</h2>
+      <button (click)="navigateToDesigner()" class="flex min-w-[84px] w-fit max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-background-dark text-base font-bold hover:opacity-80 transition-all transform hover:scale-105">
+        <span class="truncate">Lanzar la Aplicación</span>
+      </button>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white-10 px-10 py-6 mt-auto">
+    <p class="text-white-50 text-sm">© 2024 QuantumLeap. Todos los derechos reservados.</p>
+    <div class="flex items-center gap-6 text-white-70">
+      <a class="text-sm hover:text-primary transition-colors cursor-pointer">Recursos</a>
+      <a class="text-sm hover:text-primary transition-colors cursor-pointer">Acerca de</a>
+      <a class="text-sm hover:text-primary transition-colors cursor-pointer">Contacto</a>
+    </div>
+  </footer>
+</div>
+

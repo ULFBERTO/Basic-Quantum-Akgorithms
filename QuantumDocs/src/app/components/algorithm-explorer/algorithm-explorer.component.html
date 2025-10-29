@@ -1,0 +1,383 @@
+<div class="flex h-screen w-full bg-background-dark">
+  <!-- SideNavBar Section -->
+  <aside class="flex w-64 flex-col bg-background-dark/50 border-r border-slate-800 p-4">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="bg-primary rounded-full w-10 h-10 flex items-center justify-center">
+        <span class="text-white font-bold">Q</span>
+      </div>
+      <div class="flex flex-col">
+        <h1 class="text-white text-base font-bold">QuantumLeap</h1>
+        <p class="text-slate-400 text-sm">Suite Educativa</p>
+      </div>
+    </div>
+    <nav class="flex flex-col gap-2 flex-grow">
+      <a routerLink="/" class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-white-5 transition-colors">
+        <span class="material-symbols-outlined text-slate-300">grid_view</span>
+        <p class="text-slate-200 text-sm font-medium">Dashboard</p>
+      </a>
+      <a routerLink="/gates" class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-white-5 transition-colors">
+        <span class="material-symbols-outlined text-slate-300">hub</span>
+        <p class="text-slate-200 text-sm font-medium">Puertas Cuánticas</p>
+      </a>
+      <a routerLink="/explorer" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary-20">
+        <span class="material-symbols-outlined text-primary">explore</span>
+        <p class="text-primary text-sm font-bold">Explorador de Algoritmos</p>
+      </a>
+      <a routerLink="/designer" class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-white-5 transition-colors">
+        <span class="material-symbols-outlined text-slate-300">schema</span>
+        <p class="text-slate-200 text-sm font-medium">Diseñador de Circuitos</p>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex flex-1 h-screen overflow-hidden">
+    <!-- Algorithm List Panel -->
+    <div class="w-80 flex-shrink-0 bg-background-dark/30 border-r border-slate-800 flex flex-col overflow-y-auto">
+      <div class="p-4 border-b border-slate-800 sticky top-0 bg-background-dark/80 backdrop-blur-sm">
+        <h2 class="text-xl font-bold text-white mb-4">Algoritmos</h2>
+        <div class="flex w-full items-stretch rounded-lg h-10">
+          <div class="text-slate-400 flex bg-slate-800 items-center justify-center pl-3 rounded-l-lg">
+            <span class="material-symbols-outlined">search</span>
+          </div>
+          <input 
+            [(ngModel)]="searchQuery"
+            (input)="filterAlgorithms()"
+            class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-slate-800 h-full placeholder:text-slate-400 pl-2 text-sm" 
+            placeholder="Buscar algoritmo..."/>
+        </div>
+      </div>
+      <div class="flex-grow p-2">
+        <a *ngFor="let algo of filteredAlgorithms" 
+           (click)="selectAlgorithm(algo)"
+           [class.bg-primary-20]="selectedAlgorithm?.id === algo.id"
+           class="flex items-center gap-4 px-4 py-3 justify-between rounded-lg mb-2 hover-bg-white-5 cursor-pointer transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="text-slate-300 flex items-center justify-center rounded-lg bg-slate-800 shrink-0 w-10 h-10">
+              <span class="material-symbols-outlined">{{ getAlgorithmIcon(algo.category) }}</span>
+            </div>
+            <p class="text-slate-200 text-base font-normal flex-1 truncate">{{ algo.name }}</p>
+          </div>
+          <div class="shrink-0">
+            <div [class.text-primary]="selectedAlgorithm?.id === algo.id" class="text-slate-400 flex w-7 h-7 items-center justify-center">
+              <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Content Panel -->
+    <div class="flex-1 flex flex-col bg-background-dark overflow-y-auto">
+      <header class="p-6 border-b border-slate-800 sticky top-0 bg-background-dark/80 backdrop-blur-sm z-10">
+        <p class="text-white text-3xl font-black">{{ selectedAlgorithm?.name || 'Selecciona un Algoritmo' }}</p>
+        <p class="text-slate-400 mt-1">{{ selectedAlgorithm?.description }}</p>
+      </header>
+      
+      <div class="p-6 flex-grow" *ngIf="selectedAlgorithm">
+        <div class="flex border-b border-slate-800 mb-6">
+          <button 
+            *ngFor="let tab of tabs"
+            (click)="activeTab = tab"
+            [class.text-primary]="activeTab === tab"
+            [class.border-primary]="activeTab === tab"
+            [class.text-slate-400]="activeTab !== tab"
+            class="px-4 py-3 text-sm font-bold border-b-2 border-transparent hover:text-white transition-colors">
+            {{ tab }}
+          </button>
+        </div>
+
+        <!-- Tab: Visualización -->
+        <div *ngIf="activeTab === 'Visualización'" class="grid grid-cols-1 gap-6">
+          <!-- Visualización Antes y Después -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- ANTES -->
+            <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-4">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-blue-400">start</span>
+                <h3 class="text-lg font-bold text-white">Estado Inicial</h3>
+              </div>
+              
+              <div class="bg-slate-800 rounded-lg p-4">
+                <div class="text-center mb-3">
+                  <p class="text-slate-400 text-sm mb-2">Todos los qubits en |0⟩</p>
+                  <div class="flex justify-center gap-2 flex-wrap">
+                    <span *ngFor="let q of getQubitArray()" 
+                          class="inline-block px-3 py-1 bg-blue-600 bg-opacity-20 text-blue-400 rounded font-mono text-sm">
+                      |0⟩
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Diagrama visual del estado inicial -->
+                <div class="mt-4 p-3 bg-slate-700 rounded">
+                  <p class="text-white text-xs font-mono text-center">
+                    |ψ₀⟩ = |{{ '0'.repeat(selectedAlgorithm.circuit.qubits) }}⟩
+                  </p>
+                  <div class="mt-2 flex justify-center">
+                    <div class="w-full max-w-xs h-2 bg-slate-600 rounded-full overflow-hidden">
+                      <div class="h-full bg-blue-500" style="width: 100%"></div>
+                    </div>
+                  </div>
+                  <p class="text-slate-400 text-xs text-center mt-1">100% probabilidad</p>
+                </div>
+
+                <!-- Representación visual simple -->
+                <div class="mt-4 flex justify-center">
+                  <div class="relative w-32 h-32">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                      <!-- Círculo de fondo -->
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="#334155" stroke-width="2"/>
+                      <!-- Eje Z -->
+                      <line x1="50" y1="5" x2="50" y2="95" stroke="#60a5fa" stroke-width="2"/>
+                      <!-- Punto en |0⟩ (arriba) -->
+                      <circle cx="50" cy="10" r="8" fill="#3b82f6"/>
+                      <!-- Etiquetas -->
+                      <text x="50" y="3" text-anchor="middle" fill="#93c5fd" font-size="10">|0⟩</text>
+                      <text x="50" y="100" text-anchor="middle" fill="#93c5fd" font-size="10">|1⟩</text>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DESPUÉS -->
+            <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-4">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-green-400">check_circle</span>
+                <h3 class="text-lg font-bold text-white">Estado Final</h3>
+              </div>
+              
+              <div class="bg-slate-800 rounded-lg p-4">
+                <div class="text-center mb-3">
+                  <p class="text-slate-400 text-sm mb-2">{{ getStateDescription() }}</p>
+                  <div class="text-green-400 font-mono text-sm">
+                    {{ getStateNotation() }}
+                  </div>
+                </div>
+                
+                <!-- Diagrama de probabilidades -->
+                <div class="mt-4 space-y-2">
+                  <div *ngFor="let state of getPossibleStates()" class="flex items-center gap-2">
+                    <span class="text-slate-400 text-xs font-mono w-16">|{{ state }}⟩</span>
+                    <div class="flex-1 h-6 bg-slate-700 rounded-full overflow-hidden">
+                      <div class="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-500"
+                           [style.width.%]="getStateProbability(state)"></div>
+                    </div>
+                    <span class="text-white text-xs font-bold w-12 text-right">
+                      {{ getStateProbability(state).toFixed(1) }}%
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Esfera de Bloch única (solo aquí) -->
+                <div class="mt-4 h-[250px] bg-slate-700 rounded-lg overflow-hidden">
+                  <app-bloch-sphere [autoRotate]="true" [showControls]="false"></app-bloch-sphere>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información del Algoritmo -->
+          <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-4">
+            <h4 class="text-white font-bold mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">info</span>
+              Información del Algoritmo
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-slate-800 rounded-lg p-3">
+                <p class="text-slate-400 text-xs mb-1">Qubits</p>
+                <p class="text-white text-2xl font-bold">{{ selectedAlgorithm.circuit.qubits }}</p>
+              </div>
+              <div class="bg-slate-800 rounded-lg p-3">
+                <p class="text-slate-400 text-xs mb-1">Estados Posibles</p>
+                <p class="text-white text-2xl font-bold">{{ Math.pow(2, selectedAlgorithm.circuit.qubits) }}</p>
+              </div>
+              <div class="bg-slate-800 rounded-lg p-3">
+                <p class="text-slate-400 text-xs mb-1">Complejidad</p>
+                <span class="inline-block px-3 py-1 rounded-full text-sm font-bold"
+                      [class.bg-green-600]="selectedAlgorithm.complexity === 'beginner'"
+                      [class.bg-yellow-600]="selectedAlgorithm.complexity === 'intermediate'"
+                      [class.bg-red-600]="selectedAlgorithm.complexity === 'advanced'">
+                  {{ selectedAlgorithm.complexity }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Explicación -->
+        <div *ngIf="activeTab === 'Explicación'" class="grid grid-cols-1 gap-6">
+          <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-6">
+            <h3 class="text-lg font-bold text-white mb-4">¿Qué es {{ selectedAlgorithm.name }}?</h3>
+            <div class="bg-primary-20 border-l-4 border-primary p-4 rounded-r-lg mb-4">
+              <p class="text-slate-300 text-base leading-relaxed">{{ selectedAlgorithm.description }}</p>
+            </div>
+            
+            <h4 class="text-white font-bold mt-6 mb-3">Complejidad</h4>
+            <div class="flex items-center gap-2 mb-6">
+              <span class="px-4 py-2 rounded-full text-sm font-bold"
+                    [class.bg-green-600]="selectedAlgorithm.complexity === 'beginner'"
+                    [class.bg-yellow-600]="selectedAlgorithm.complexity === 'intermediate'"
+                    [class.bg-red-600]="selectedAlgorithm.complexity === 'advanced'">
+                {{ selectedAlgorithm.complexity }}
+              </span>
+            </div>
+
+            <h4 class="text-white font-bold mt-6 mb-3">Aplicaciones</h4>
+            <ul class="list-disc list-inside text-slate-300 space-y-2">
+              <li *ngIf="selectedAlgorithm.category === 'search'">Búsqueda en bases de datos no ordenadas</li>
+              <li *ngIf="selectedAlgorithm.category === 'factoring'">Criptografía y seguridad</li>
+              <li *ngIf="selectedAlgorithm.category === 'other'">Investigación en computación cuántica</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tab: Simulación -->
+        <div *ngIf="activeTab === 'Simulación'" class="grid grid-cols-3 gap-6">
+          <div class="col-span-3 lg:col-span-2">
+            <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-6">
+              <h3 class="text-lg font-bold text-white mb-4">Parámetros del Algoritmo</h3>
+              
+              <!-- Parámetros dinámicos según el algoritmo -->
+              <div class="space-y-4 mb-6" *ngIf="selectedAlgorithm.parameters">
+                <div *ngFor="let param of getParameterKeys()">
+                  <!-- Input numérico -->
+                  <div *ngIf="getParameterType(param) === 'number'">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                      {{ getParameterLabel(param) }}
+                    </label>
+                    <input 
+                      type="number" 
+                      [value]="getParameterDefault(param)"
+                      [min]="getParameterMin(param)"
+                      [max]="getParameterMax(param)"
+                      [step]="getParameterStep(param)"
+                      (input)="updateParameter(param, $event)"
+                      class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none">
+                  </div>
+                  
+                  <!-- Input de texto -->
+                  <div *ngIf="getParameterType(param) === 'text'">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                      {{ getParameterLabel(param) }}
+                    </label>
+                    <input 
+                      type="text" 
+                      [value]="getParameterDefault(param)"
+                      (input)="updateParameter(param, $event)"
+                      class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none">
+                  </div>
+                  
+                  <!-- Select -->
+                  <div *ngIf="getParameterType(param) === 'select'">
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                      {{ getParameterLabel(param) }}
+                    </label>
+                    <select 
+                      (change)="updateParameter(param, $event)"
+                      class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none">
+                      <option *ngFor="let option of getParameterOptions(param)" [value]="option">
+                        {{ option }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configuración general -->
+              <div class="space-y-4 border-t border-slate-700 pt-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Shots (Mediciones)
+                  </label>
+                  <input type="number" [(ngModel)]="simulationShots" min="100" max="10000" step="100"
+                         class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none">
+                </div>
+                
+                <button (click)="runSimulation()" class="w-full bg-primary hover:opacity-80 text-white font-bold py-3 px-6 rounded-lg transition-all">
+                  <span class="material-symbols-outlined inline-block mr-2">play_arrow</span>
+                  Ejecutar Simulación
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-span-3 lg:col-span-1">
+            <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-6">
+              <h3 class="text-lg font-bold text-white mb-4">Resultados</h3>
+              
+              <div *ngIf="!simulationExecuted" class="text-center py-8">
+                <span class="material-symbols-outlined text-slate-600 text-6xl">science</span>
+                <p class="text-slate-400 text-sm mt-2">Ejecuta la simulación para ver los resultados</p>
+              </div>
+
+              <div *ngIf="simulationExecuted" class="space-y-4">
+                <!-- Histograma de resultados -->
+                <div>
+                  <p class="text-slate-400 text-xs mb-2">Distribución de Probabilidades</p>
+                  <div class="space-y-2">
+                    <div *ngFor="let state of getPossibleStates()" class="flex items-center gap-2">
+                      <span class="text-slate-400 text-xs font-mono w-12">|{{ state }}⟩</span>
+                      <div class="flex-1 h-6 bg-slate-700 rounded overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-primary to-blue-400 transition-all duration-500"
+                             [style.width.%]="getStateProbability(state)"></div>
+                      </div>
+                      <span class="text-white text-xs font-bold w-12 text-right">
+                        {{ getStateProbability(state).toFixed(1) }}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="border-t border-slate-700 pt-4">
+                  <p class="text-slate-400 text-xs mb-2">Estadísticas</p>
+                  <div class="space-y-2 text-xs">
+                    <div class="flex justify-between">
+                      <span class="text-slate-400">Shots ejecutados:</span>
+                      <span class="text-white font-mono">{{ simulationShots.toLocaleString() }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-slate-400">Estados medidos:</span>
+                      <span class="text-white font-mono">{{ getPossibleStates().length }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-slate-400">Entropía:</span>
+                      <span class="text-white font-mono">{{ calculateEntropy().toFixed(3) }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Estado más probable -->
+                <div class="bg-green-600 bg-opacity-10 border border-green-600 border-opacity-30 rounded-lg p-3">
+                  <p class="text-green-400 text-xs font-bold mb-1">Estado Más Probable</p>
+                  <p class="text-white font-mono text-lg">|{{ getMostProbableState() }}⟩</p>
+                  <p class="text-green-400 text-xs">{{ getStateProbability(getMostProbableState()).toFixed(1) }}% probabilidad</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Código -->
+        <div *ngIf="activeTab === 'Código'" class="grid grid-cols-1 gap-6">
+          <div class="bg-slate-900 bg-opacity-50 rounded-xl border border-slate-800 p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-white">Código Python (Qiskit)</h3>
+              <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm transition-colors">
+                <span class="material-symbols-outlined inline-block text-sm mr-1">content_copy</span>
+                Copiar
+              </button>
+            </div>
+            <div class="bg-slate-800 p-4 rounded-lg overflow-auto max-h-[600px]">
+              <pre class="text-sm text-slate-300"><code>{{ selectedAlgorithm.pythonCode }}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+

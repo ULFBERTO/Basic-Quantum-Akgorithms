@@ -1,0 +1,46 @@
+<div class="bloch-sphere-container">
+  <div #canvas class="canvas-container"></div>
+  
+  <div *ngIf="showControls" class="controls-panel">
+    <h3 class="text-white text-lg font-bold mb-4">Controles de Estado</h3>
+    
+    <div class="control-group">
+      <label class="text-white/80 text-sm">θ (Theta): {{ (theta * 180 / 3.14159).toFixed(1) }}°</label>
+      <input 
+        type="range" 
+        [value]="theta" 
+        (input)="onThetaChange($event)"
+        min="0" 
+        [max]="3.14159" 
+        step="0.01"
+        class="slider">
+    </div>
+
+    <div class="control-group">
+      <label class="text-white/80 text-sm">φ (Phi): {{ (phi * 180 / 3.14159).toFixed(1) }}°</label>
+      <input 
+        type="range" 
+        [value]="phi" 
+        (input)="onPhiChange($event)"
+        min="0" 
+        [max]="6.28318" 
+        step="0.01"
+        class="slider">
+    </div>
+
+    <div class="gate-buttons">
+      <button (click)="applyHadamard()" class="gate-btn bg-purple-600 hover:bg-purple-700">H</button>
+      <button (click)="applyPauliX()" class="gate-btn bg-orange-600 hover:bg-orange-700">X</button>
+      <button (click)="applyPauliY()" class="gate-btn bg-pink-600 hover:bg-pink-700">Y</button>
+      <button (click)="applyPauliZ()" class="gate-btn bg-green-600 hover:bg-green-700">Z</button>
+      <button (click)="resetState()" class="gate-btn bg-gray-600 hover:bg-gray-700">Reset</button>
+    </div>
+
+    <div class="state-info">
+      <p class="text-white/60 text-xs">Estado actual:</p>
+      <p class="text-white text-sm font-mono">
+        |ψ⟩ = cos(θ/2)|0⟩ + e^(iφ)sin(θ/2)|1⟩
+      </p>
+    </div>
+  </div>
+</div>

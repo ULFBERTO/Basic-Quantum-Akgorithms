@@ -1,0 +1,163 @@
+<div class="flex h-screen w-full bg-background-dark">
+  <!-- SideNavBar (Left Panel) -->
+  <aside class="w-64 flex-shrink-0 bg-[#14142B] p-4 flex flex-col gap-4 border-r border-slate-800">
+    <div class="flex gap-3 items-center">
+      <div class="bg-primary rounded-full w-10 h-10 flex items-center justify-center">
+        <span class="text-white font-bold">Q</span>
+      </div>
+      <div class="flex flex-col">
+        <h1 class="text-white text-base font-medium">Puertas Cuánticas</h1>
+        <p class="text-slate-400 text-sm">Arrastra para construir</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 mt-4">
+      <p class="text-slate-500 text-xs font-bold uppercase tracking-wider px-3 pb-2">Puertas de 1 Qubit</p>
+      <div *ngFor="let gate of singleQubitGates" 
+           draggable="true"
+           (dragstart)="onDragStart($event, gate)"
+           (click)="selectGate(gate)"
+           [ngClass]="{'bg-primary-20': selectedGate?.id === gate.id}"
+           class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-primary-10 cursor-pointer cursor-grab active:cursor-grabbing">
+        <div class="flex items-center justify-center w-6 h-6 text-white font-bold rounded text-sm" 
+             [style.background-color]="gate.color">
+          {{ gate.symbol }}
+        </div>
+        <p class="text-white text-sm font-medium">{{ gate.name }}</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 mt-4">
+      <p class="text-slate-500 text-xs font-bold uppercase tracking-wider px-3 pb-2">Puertas Múltiples Qubits</p>
+      <div *ngFor="let gate of multiQubitGates" 
+           draggable="true"
+           (dragstart)="onDragStart($event, gate)"
+           (click)="selectGate(gate)"
+           [ngClass]="{'bg-primary-20': selectedGate?.id === gate.id}"
+           class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-primary-10 cursor-pointer cursor-grab active:cursor-grabbing">
+        <div class="flex items-center justify-center w-6 h-6 text-white font-bold rounded text-sm" 
+             [style.background-color]="gate.color">
+          {{ gate.symbol }}
+        </div>
+        <p class="text-white text-sm font-medium">{{ gate.name }}</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 mt-auto">
+      <div (click)="addQubit()" class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-primary-10 cursor-pointer">
+        <span class="material-symbols-outlined text-slate-400">add_box</span>
+        <p class="text-white text-sm font-medium">Agregar Qubit</p>
+      </div>
+      <div (click)="removeQubit()" class="flex items-center gap-3 px-3 py-2 rounded-lg hover-bg-primary-10 cursor-pointer">
+        <span class="material-symbols-outlined text-slate-400">indeterminate_check_box</span>
+        <p class="text-white text-sm font-medium">Remover Qubit</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col">
+    <!-- ToolBar (Top) -->
+    <header class="flex justify-between items-center gap-2 px-4 py-2 border-b border-slate-800 bg-opacity-80 backdrop-blur-sm" style="background-color: rgba(10, 14, 26, 0.8);">
+      <div class="flex gap-1">
+        <button class="p-2 text-slate-300 hover:text-white rounded-lg hover-bg-primary-20 transition-colors">
+          <span class="material-symbols-outlined">undo</span>
+        </button>
+        <button class="p-2 text-slate-300 hover:text-white rounded-lg hover-bg-primary-20 transition-colors">
+          <span class="material-symbols-outlined">redo</span>
+        </button>
+        <div class="h-6 w-px bg-slate-700 mx-2 my-auto"></div>
+        <button (click)="saveCircuit()" class="p-2 text-slate-300 hover:text-white rounded-lg hover-bg-primary-20 transition-colors" title="Guardar circuito">
+          <span class="material-symbols-outlined">save</span>
+        </button>
+        <button (click)="openSavedCircuits()" class="p-2 text-slate-300 hover:text-white rounded-lg hover-bg-primary-20 transition-colors" title="Abrir circuito guardado">
+          <span class="material-symbols-outlined">folder_open</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-4">
+        <button (click)="clearCircuit()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#232348] text-white gap-2 text-sm font-bold hover:bg-[#31315c] transition-colors">
+          <span class="material-symbols-outlined text-xl">restart_alt</span>
+          <span class="truncate">Reiniciar</span>
+        </button>
+        <button (click)="simulateCircuit()" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-primary text-white gap-2 text-sm font-bold min-w-0 px-4 hover:bg-blue-600 transition-colors">
+          <span class="material-symbols-outlined text-xl">play_arrow</span>
+          <span class="truncate">Simular</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Canvas (Center) -->
+    <div class="flex-1 p-8 overflow-auto bg-[radial-gradient(circle_at_1px_1px,_#292944_1px,_transparent_0)] [background-size:2rem_2rem]">
+      <div class="space-y-8">
+        <div *ngFor="let qubit of qubits; let i = index" class="flex items-center gap-4">
+          <p class="text-slate-400 font-mono text-sm w-12">|q{{i}}⟩</p>
+          <div class="flex-1 h-px bg-slate-700 relative flex items-center min-h-[60px]"
+               (drop)="onDrop($event, i)"
+               (dragover)="onDragOver($event)">
+            <!-- Estado inicial -->
+            <div class="absolute left-0 flex items-center justify-center w-8 h-8 bg-slate-800 border border-slate-600 rounded-lg text-white font-mono text-sm">
+              |0⟩
+            </div>
+            
+            <!-- Puertas del circuito -->
+            <div *ngFor="let gate of getGatesForQubit(i); let gateIdx = index" 
+                 [style.left.px]="(gateIdx + 1) * 96"
+                 class="absolute flex items-center justify-center w-10 h-10 text-white font-bold rounded-lg cursor-grab active:cursor-grabbing"
+                 [style.background-color]="getGateColor(gate.gateId)">
+              {{ getGateSymbol(gate.gateId) }}
+            </div>
+
+            <!-- Medición -->
+            <div class="absolute right-0 flex items-center justify-center cursor-grab active:cursor-grabbing">
+              <span class="material-symbols-outlined text-cyan-400 text-4xl">sensors</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Visualization Panel (Right) -->
+  <aside class="w-80 flex-shrink-0 bg-[#14142B] p-4 flex flex-col border-l border-slate-800">
+    <h2 class="text-white text-lg font-bold px-2 py-1">Resultados de la Simulación</h2>
+    
+    <div class="mt-4">
+      <h3 class="text-slate-300 text-base font-bold px-2 pb-2">Esfera de Bloch</h3>
+      <div class="aspect-square bg-background-dark rounded-xl overflow-hidden">
+        <app-bloch-sphere [showControls]="false" [autoRotate]="true"></app-bloch-sphere>
+      </div>
+      <p class="text-slate-400 text-xs px-2 pt-2">Representación del estado del Qubit |q₀⟩</p>
+    </div>
+
+    <div class="mt-6" *ngIf="simulationResult">
+      <h3 class="text-slate-300 text-base font-bold px-2 pb-3">Probabilidades de Estado</h3>
+      <div class="space-y-3 px-2">
+        <div *ngFor="let state of getStateKeys()" class="flex items-center gap-3">
+          <span class="font-mono text-sm text-slate-400 w-10">|{{ state }}⟩</span>
+          <div class="w-full bg-slate-700 rounded-full h-2.5">
+            <div class="bg-primary h-2.5 rounded-full" 
+                 [style.width.%]="simulationResult.probabilities[state] * 100"></div>
+          </div>
+          <span class="font-mono text-sm text-white w-10 text-right">
+            {{ (simulationResult.probabilities[state] * 100).toFixed(0) }}%
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-auto pt-6">
+      <h3 class="text-slate-300 text-base font-bold px-2 pb-2">Código Qiskit</h3>
+      <div class="bg-background-dark p-3 rounded-xl">
+        <pre class="text-xs text-slate-300 overflow-x-auto"><code class="font-mono">{{ qiskitCode }}</code></pre>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Modal de circuitos guardados -->
+  <app-saved-circuits-modal 
+    *ngIf="showSavedCircuitsModal"
+    (configSelected)="loadSavedCircuit($event)"
+    (closed)="closeSavedCircuits()">
+  </app-saved-circuits-modal>
+</div>
+
