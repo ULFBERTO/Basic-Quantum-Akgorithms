@@ -7,7 +7,7 @@ print("=== EJEMPLO 5: ALGORITMO DE GROVER ===")
 print("Búsqueda cuántica en base de datos no ordenada")
 
 simulator = AerSimulator()
-
+ 
 def grover_oracle(marked_items, n_qubits):
     """
     Crea un oráculo que marca los elementos buscados
