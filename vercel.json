@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/dist/quantum-docs/index.html"
+      "destination": "/QuantumDocs/dist/quantum-docs/index.html"
     }
   ]
 }
