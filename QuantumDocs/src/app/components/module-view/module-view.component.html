@@ -1,0 +1,90 @@
+<div class="min-h-screen bg-background-dark text-white p-6 md:p-12">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Header -->
+    <header class="mb-12 text-center fade-in">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
+        {{ course?.title }}
+      </h1>
+      <p class="text-xl text-slate-400 max-w-2xl mx-auto">
+        {{ course?.description }}
+      </p>
+    </header>
+
+    <!-- Progress Overview -->
+    <div class="mb-12 bg-white-5 rounded-xl p-6 border border-white-10 fade-in" *ngIf="progress$ | async as progress">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium text-slate-300">Total Progress</span>
+        <span class="text-sm font-bold text-primary">{{ progress.totalXP }} XP</span>
+      </div>
+      <div class="w-full bg-slate-700 rounded-full h-2.5">
+        <!-- Placeholder for actual percentage calculation -->
+        <div class="bg-primary h-2.5 rounded-full shadow-[0_0_10px_rgba(77,150,255,0.5)]" 
+             style="width: 10%"></div>
+      </div>
+    </div>
+
+    <!-- Modules List -->
+    <div [@listAnimation] *ngIf="course">
+      <div *ngFor="let module of course.modules" class="mb-8">
+        
+        <!-- Module Header -->
+        <div class="flex items-center gap-4 mb-4">
+          <div class="p-3 rounded-lg bg-primary-10 text-primary border border-primary-30">
+            <span class="material-symbols-outlined text-2xl">{{ module.icon }}</span>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold">{{ module.title }}</h2>
+            <p class="text-slate-400">{{ module.description }}</p>
+          </div>
+        </div>
+
+        <!-- Lessons Grid -->
+        <div class="grid gap-4 md:grid-cols-1">
+          <div *ngFor="let lesson of module.lessons" 
+               class="group relative bg-slate-800/50 hover:bg-slate-800 border border-white-10 hover:border-primary-50 rounded-xl p-5 transition-all duration-300 cursor-pointer overflow-hidden"
+               [class.opacity-50]="isLessonLocked(lesson.id)"
+               [class.cursor-not-allowed]="isLessonLocked(lesson.id)"
+               (click)="!isLessonLocked(lesson.id) && startLesson(module.id, lesson.id)">
+            
+            <!-- Locked Overlay -->
+            <div *ngIf="isLessonLocked(lesson.id)" class="absolute inset-0 z-10 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+              <span class="material-symbols-outlined text-slate-500 text-3xl">lock</span>
+            </div>
+
+            <div class="flex justify-between items-start relative z-0">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-primary-20 text-primary border border-primary-30">
+                    LESSON
+                  </span>
+                  <span *ngIf="(progress$ | async)?.completedLessons?.includes(lesson.id)" 
+                        class="text-green-400 flex items-center text-xs font-bold gap-1">
+                    <span class="material-symbols-outlined text-sm">check_circle</span> COMPLETED
+                  </span>
+                </div>
+                <h3 class="text-lg font-bold mb-1 group-hover:text-primary transition-colors">
+                  {{ lesson.title }}
+                </h3>
+                <p class="text-sm text-slate-400 line-clamp-2">
+                  {{ lesson.description }}
+                </p>
+              </div>
+
+              <div class="flex flex-col items-end gap-2">
+                <span class="text-xs font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded border border-white-10">
+                   +{{ lesson.xpReward }} XP
+                </span>
+                <span class="material-symbols-outlined text-slate-600 group-hover:text-primary transition-transform group-hover:translate-x-1">
+                  arrow_forward
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

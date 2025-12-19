@@ -1,0 +1,23 @@
+:host {
+    display: block;
+}
+
+/* Custom prose overrides for dark mode */
+.prose {
+    color: #cbd5e1;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose strong {
+    color: #f8fafc;
+}
+
+.prose blockquote {
+    border-left-color: var(--primary);
+    background: rgba(77, 150, 255, 0.1);
+    padding: 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+}

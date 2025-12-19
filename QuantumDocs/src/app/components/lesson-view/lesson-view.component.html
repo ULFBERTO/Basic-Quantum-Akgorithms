@@ -1,0 +1,149 @@
+<div class="flex h-screen bg-background-dark text-white overflow-hidden" *ngIf="currentLesson && currentModule">
+
+    <!-- Sidebar Navigation (Simplified) -->
+    <aside class="w-64 bg-slate-900 border-r border-white-10 flex-col hidden md:flex">
+        <div class="p-6 border-b border-white-10">
+            <h2 class="text-sm font-bold text-slate-400 mb-1">MODULE</h2>
+            <h3 class="text-lg font-bold text-primary leading-tight">{{ currentModule.title }}</h3>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <div *ngFor="let l of currentModule.lessons; let i = index" class="p-3 rounded-lg text-sm transition-colors"
+                [class.bg-primary-20]="l.id === currentLesson.id" [class.text-primary]="l.id === currentLesson.id"
+                [class.text-slate-400]="l.id !== currentLesson.id">
+                <div class="flex items-center gap-3">
+                    <span
+                        class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono border border-white-10"
+                        [class.bg-primary]="l.id === currentLesson.id" [class.text-white]="l.id === currentLesson.id"
+                        [class.bg-slate-800]="l.id !== currentLesson.id">
+                        {{ i + 1 }}
+                    </span>
+                    <span class="line-clamp-2">{{ l.title }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-white-10">
+            <button
+                class="w-full py-2 px-4 rounded-lg border border-white-10 hover:bg-white-5 text-slate-300 flex items-center justify-center gap-2 transition-colors"
+                routerLink="/learn">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Dashboard
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto relative scroll-smooth">
+        <div class="max-w-3xl mx-auto p-6 md:p-12 pb-32">
+
+            <!-- Lesson Header -->
+            <header class="mb-8">
+                <span class="text-primary font-mono text-sm tracking-wider uppercase mb-2 block">Lesson {{
+                    currentModule.lessons.indexOf(currentLesson) + 1 }}</span>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ currentLesson.title }}</h1>
+                <p class="text-xl text-slate-300 leading-relaxed">{{ currentLesson.description }}</p>
+            </header>
+
+            <!-- Content Blocks -->
+            <div class="space-y-12">
+                <div *ngFor="let block of currentLesson.content" [ngSwitch]="block.type">
+
+                    <!-- Text Content -->
+                    <div *ngSwitchCase="'text'" class="prose prose-invert prose-lg max-w-none">
+                        <!-- Note: In a real app we'd use a Markdown pipe here -->
+                        <div class="whitespace-pre-wrap font-display">{{ block.data }}</div>
+                    </div>
+
+                    <!-- Video Content -->
+                    <div *ngSwitchCase="'video'"
+                        class="rounded-xl overflow-hidden border border-white-10 bg-black aspect-video shadow-2xl">
+                        <iframe *ngIf="block.type === 'video'" [src]="getSafeVideoUrl(block.data)" class="w-full h-full"
+                            title="Video player" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+
+                    <!-- Interactive Content -->
+                    <div *ngSwitchCase="'interactive'"
+                        class="rounded-xl overflow-hidden border border-primary-30 bg-black/20">
+                        <div class="p-4 border-b border-white-10 flex justify-between items-center bg-slate-900/50">
+                            <h3 class="font-bold text-primary flex items-center gap-2">
+                                <span class="material-symbols-outlined">science</span>
+                                {{ block.title }}
+                            </h3>
+                        </div>
+
+                        <div class="p-6">
+                            <!-- Bloch Sphere Demo -->
+                            <div *ngIf="block.data === 'bloch-sphere-demo'"
+                                class="h-[400px] w-full relative rounded-lg overflow-hidden border border-white-10">
+                                <app-bloch-sphere [autoRotate]="true" [showControls]="true"></app-bloch-sphere>
+                            </div>
+
+                            <!-- Circuit Challenge -->
+                            <div *ngIf="block.data === 'circuit-challenge'"
+                                class="h-[500px] w-full relative rounded-lg overflow-hidden bg-slate-900">
+                                <app-circuit-designer></app-circuit-designer>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Completion / Quiz Section -->
+            <div class="mt-16 pt-8 border-t border-white-10">
+
+                <!-- Quiz Mode -->
+                <div *ngIf="quizActive"
+                    class="bg-slate-800 rounded-xl p-8 border border-primary-30 animate-in fade-in slide-in-from-bottom-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-white">Knowledge Check</h3>
+                        <span class="text-slate-400 font-mono">Question {{ currentQuizQuestionIndex + 1 }} / {{
+                            currentLesson.quiz?.length }}</span>
+                    </div>
+
+                    <div *ngIf="currentLesson.quiz" class="mb-8">
+                        <h4 class="text-xl mb-6">{{ currentLesson.quiz[currentQuizQuestionIndex].question }}</h4>
+
+                        <div class="space-y-3">
+                            <button
+                                *ngFor="let option of currentLesson.quiz[currentQuizQuestionIndex].options; let i = index"
+                                class="w-full text-left p-4 rounded-lg border-2 transition-all"
+                                [class.border-transparent]="selectedOptionIndex !== i"
+                                [class.bg-slate-700]="selectedOptionIndex !== i"
+                                [class.border-primary]="selectedOptionIndex === i"
+                                [class.bg-primary-20]="selectedOptionIndex === i" (click)="selectOption(i)">
+                                {{ option }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-red-400 font-bold" *ngIf="quizFeedback">{{ quizFeedback }}</span>
+                        <button
+                            class="ml-auto px-8 py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            [disabled]="selectedOptionIndex === null" (click)="submitAnswer()">
+                            Check Answer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Complete Button -->
+                <div *ngIf="!quizActive" class="flex justify-end">
+                    <button
+                        class="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-blue-600 rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(77,150,255,0.3)] hover:shadow-[0_0_30px_rgba(77,150,255,0.5)] transition-all transform hover:-translate-y-1"
+                        (click)="completeLesson()">
+                        <span>{{ currentLesson.quiz && !quizCompleted ? 'Take Quiz' : 'Complete Lesson' }}</span>
+                        <span
+                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
